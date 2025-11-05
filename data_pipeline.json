@@ -1,0 +1,221 @@
+{
+  "name": "data_pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        -80
+      ],
+      "id": "ded416e5-2b64-4619-a350-65a374bf5fae",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.escuelajs.co/api/v1/products",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "offset",
+                    "value": "={{ $pageCount * $json[\"limit\"] }}"
+                  },
+                  {
+                    "name": "limit",
+                    "value": "={{ $json.limit }}"
+                  }
+                ]
+              },
+              "limitPagesFetched": true,
+              "maxRequests": 5,
+              "requestInterval": 100
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        -80
+      ],
+      "id": "9a494edb-41b8-47d6-878b-946b2fca5482",
+      "name": "Collect Products from Paginated API"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  \"offset\": 0,\n  \"limit\": 10\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        -80
+      ],
+      "id": "f349f17d-8492-42f3-9617-68be60535da3",
+      "name": "Set Origin URL"
+    },
+    {
+      "parameters": {
+        "jsCode": "const products = $input.all().map((item) => item.json);\nlet result = [];\n\nfor (let product of products) {\n  let { id, title, description, price } = product;\n  result.push({ id, title, description, price });\n}\n\nreturn result.map((item) => ({ json: item }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        -80
+      ],
+      "id": "8103c0b4-0bcb-42ef-8c9b-9513d4639550",
+      "name": "Extract Data"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mNOmvTEnl6qOLTBFjaGXTGLmoXz2TweZTb0BoBDqqVw",
+          "mode": "list",
+          "cachedResultName": "Test_Data_1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mNOmvTEnl6qOLTBFjaGXTGLmoXz2TweZTb0BoBDqqVw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mNOmvTEnl6qOLTBFjaGXTGLmoXz2TweZTb0BoBDqqVw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "title": "={{ $json.title }}",
+            "description": "={{ $json.description }}",
+            "price": "={{ $json.price }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "57202a1a-5084-4441-a059-5d0e50fd94a1",
+      "name": "Append Product Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hy9944p8yM91Q3hC",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Origin URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Products from Paginated API": {
+      "main": [
+        [
+          {
+            "node": "Extract Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Origin URL": {
+      "main": [
+        [
+          {
+            "node": "Collect Products from Paginated API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Data": {
+      "main": [
+        [
+          {
+            "node": "Append Product Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9423cd34-b0a1-475f-97ff-323e188790a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7282dfc2dc15cb6a5d52cb7b5f6d37f573419e3ef89303ce348e9653d50a55bd"
+  },
+  "id": "SemXLzO1ZrzN8ZBR",
+  "tags": []
+}
