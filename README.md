@@ -1,5 +1,5 @@
 ### 🧠 What is n8n?
-[Messenger AI Agent](fb_page_chatbot_automation.jpg)
+![Messenger AI Agent](fb_page_chatbot_automation.jpg)
 
 **n8n** (short for *“nodemation”*) is a **powerful open-source workflow automation tool** that lets you connect different services and APIs — with or without code. It allows you to build **automated workflows** that handle data processing, API communication, and event-based triggers visually through an intuitive editor.
 
